@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 2D-to-3D Animation Software Explorer & Multi-Agent Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#0f172a',
+                        },
+                        accent: {
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            400: '#a78bfa'
+                        },
+                        emeraldCustom: {
+                            500: '#10b981',
+                            400: '#34d399'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        code, pre, .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        /* Glassmorphism effect */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .excel-table th, .excel-table td {
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .excel-table th:last-child, .excel-table td:last-child {
+            border-right: none;
+        }
+        .sort-icon {
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+        th:hover .sort-icon {
+            opacity: 0.8;
+        }
+        th.sorted .sort-icon {
+            opacity: 1;
+            color: #60a5fa;
+        }
+        /* Pulse glow animation */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(139, 92, 246, 0.5); }
+        }
+        .pulse-active {
+            animation: pulse-glow 3s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-brand-400">
+                        2D-to-3D AI Studio Explorer
+                    </h1>
+                    <p class="text-xs text-gray-400">Autonomous AI Agent Research & Spreadsheet Suite</p>
+                </div>
+            </div>
+
+            <!-- Quick Navigation Tabs -->
+            <nav class="hidden md:flex items-center space-x-1 bg-gray-900/80 p-1 rounded-xl border border-gray-800">
+                <button onclick="switchTab('spreadsheet')" id="tab-btn-spreadsheet" class="tab-btn active px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-brand-600 transition">
+                    <i class="fa-solid fa-table-cells mr-1.5"></i> Excel Table
+                </button>
+                <button onclick="switchTab('agents')" id="tab-btn-agents" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-robot mr-1.5"></i> AI Agents Log
+                </button>
+                <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-chart-radar mr-1.5"></i> Visual Scorecard
+                </button>
+                <button onclick="switchTab('pipeline')" id="tab-btn-pipeline" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-diagram-project mr-1.5"></i> Movie Pipeline
+                </button>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="triggerAgentScan()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-accent-600 text-white text-xs font-semibold hover:brightness-110 active:scale-95 transition flex items-center shadow-md shadow-brand-600/20">
+                    <i class="fa-solid fa-arrows-rotate mr-2" id="refresh-icon"></i>
+                    <span>Run AI Retrieval</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- TAB 1: SPREADSHEET VIEW -->
+        <section id="view-spreadsheet" class="tab-content space-y-4">
+            
+            <!-- Filter & Controls Toolbar -->
+            <div class="glass-panel p-4 rounded-2xl flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center">
+                <!-- Search Input -->
+                <div class="relative flex-1 min-w-[240px]">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="table-search" placeholder="Search tools, formats, tech types, or features..." 
+                           class="w-full bg-gray-900/90 text-sm text-gray-200 pl-10 pr-4 py-2 rounded-xl border border-gray-700/80 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition placeholder-gray-500">
+                </div>
+
+                <!-- Dropdown Filters -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-gray-400 font-medium">Cost Tier:</label>
+                        <select id="filter-cost" class="bg-gray-900/90 border border-gray-700/80 text-gray-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500">
+                            <option value="ALL">All Pricing Models</option>
+                            <option value="100% Free">100% Free / Open Source</option>
+                            <option value="Free Tier">Free Tier / Free Credits</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-gray-400 font-medium">Ease of Use:</label>
+                        <select id="filter-ease" class="bg-gray-900/90 border border-gray-700/80 text-gray-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500">
+                            <option value="ALL">All Skill Levels</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-gray-400 font-medium">Audio Sync:</label>
+                        <select id="filter-audio" class="bg-gray-900/90 border border-gray-700/80 text-gray-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500">
+                            <option value="ALL">All Audio Support</option>
+                            <option value="Native">Native Music/Lip Sync</option>
+                            <option value="Via Plugin/Workflow">Plugin/Workflow Sync</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset & Export -->
+                    <div class="flex items-center space-x-2 border-l border-gray-800 pl-3">
+                        <button onclick="resetFilters()" class="p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium transition" title="Reset Filters">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <button onclick="exportCSV()" class="px-3 py-2 rounded-xl bg-emeraldCustom-500/10 hover:bg-emeraldCustom-500/20 text-emeraldCustom-400 border border-emeraldCustom-500/30 text-xs font-semibold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-csv text-sm"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spreadsheet Info & Dynamic Counts -->
+            <div class="flex justify-between items-center px-1 text-xs text-gray-400">
+                <div id="row-count-display">Showing 8 software suites analyzed by AI Agent team</div>
+                <div class="flex items-center space-x-3">
+                    <span><i class="fa-solid fa-circle-info text-brand-400 mr-1"></i> Click column headers to sort; click any row to view deep AI analysis card.</span>
+                </div>
+            </div>
+
+            <!-- Table Container with horizontal scrolling -->
+            <div class="glass-panel rounded-2xl overflow-hidden border border-gray-800 shadow-2xl">
+                <div class="overflow-x-auto max-h-[620px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse text-xs excel-table min-w-[1200px]" id="softwareTable">
+                        <thead class="sticky top-0 bg-gray-900/95 text-gray-300 font-semibold z-10 shadow-sm backdrop-blur-md">
+                            <tr>
+                                <th onclick="sortTable('name')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none w-48">
+                                    <div class="flex items-center justify-between">
+                                        <span>Software & Tech Type</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('features')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none min-w-[200px]">
+                                    <div class="flex items-center justify-between">
+                                        <span>Core Features</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('capabilities')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none min-w-[180px]">
+                                    <div class="flex items-center justify-between">
+                                        <span>3D & Rigging Capabilities</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('easeOfUse')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none w-32">
+                                    <div class="flex items-center justify-between">
+                                        <span>Ease of Use</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('efficiencyScore')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none w-32">
+                                    <div class="flex items-center justify-between">
+                                        <span>Efficiency</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('renditionScore')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none w-32">
+                                    <div class="flex items-center justify-between">
+                                        <span>Visual Fidelity</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('formats')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none min-w-[160px]">
+                                    <div class="flex items-center justify-between">
+                                        <span>Supported Formats</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('compatibility')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none min-w-[150px]">
+                                    <div class="flex items-center justify-between">
+                                        <span>Software Ecosystem</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('pricing')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none w-36">
+                                    <div class="flex items-center justify-between">
+                                        <span>Free / License Tier</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-gray-800/60 bg-gray-950/40">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: LIVE AI AGENTS EXECUTION LOG PANEL -->
+        <section id="view-agents" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="relative flex h-3 w-3">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emeraldCustom-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-3 w-3 bg-emeraldCustom-500"></span>
+                            </span>
+                            Multi-Agent Autonomous Research Mesh
+                        </h2>
+                        <p class="text-xs text-gray-400">4 AI Agents crawling software repositories, benchmark tests, and community forums</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-mono bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                            Status: Active Retrieval Engine
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Agent Status Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-card p-4 rounded-xl border border-gray-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-brand-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-spider"></i> Agent 01: Scraper
+                            </span>
+                            <span class="text-[10px] bg-emeraldCustom-500/20 text-emeraldCustom-400 px-2 py-0.5 rounded-full">ACTIVE</span>
+                        </div>
+                        <p class="text-xs text-gray-300 font-semibold">Mesh Extractor</p>
+                        <p class="text-[11px] text-gray-400">Scans GitHub, Blender Extensions, and AI model weights for 2D-to-3D pipelines.</p>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-xl border border-gray-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-accent-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-bone"></i> Agent 02: Rig & Audio
+                            </span>
+                            <span class="text-[10px] bg-emeraldCustom-500/20 text-emeraldCustom-400 px-2 py-0.5 rounded-full">ACTIVE</span>
+                        </div>
+                        <p class="text-xs text-gray-300 font-semibold">Motion & Audio Sync</p>
+                        <p class="text-[11px] text-gray-400">Evaluates skeletal rigging support, FK/IK solvers, and waveform beat-mapping tools.</p>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-xl border border-gray-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-gauge-high"></i> Agent 03: Benchmark
+                            </span>
+                            <span class="text-[10px] bg-emeraldCustom-500/20 text-emeraldCustom-400 px-2 py-0.5 rounded-full">PROCESSING</span>
+                        </div>
+                        <p class="text-xs text-gray-300 font-semibold">Quality & Rendition Analyst</p>
+                        <p class="text-[11px] text-gray-400">Measures depth map accuracy, mesh topology artifacts, and export compatibility.</p>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-xl border border-gray-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-pink-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-table-list"></i> Agent 04: Evaluator
+                            </span>
+                            <span class="text-[10px] bg-emeraldCustom-500/20 text-emeraldCustom-400 px-2 py-0.5 rounded-full">SYNCED</span>
+                        </div>
+                        <p class="text-xs text-gray-300 font-semibold">Spreadsheet Integrator</p>
+                        <p class="text-[11px] text-gray-400">Normalizes metrics, maps license tiers, and generates Excel sorting indexes.</p>
+                    </div>
+                </div>
+
+                <!-- Real-time Agent Execution Terminal -->
+                <div class="bg-gray-950 p-4 rounded-xl border border-gray-800 font-mono text-xs space-y-2">
+                    <div class="flex items-center justify-between text-gray-500 border-b border-gray-900 pb-2 mb-2">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-terminal text-brand-500"></i> Agent Event Stream Log</span>
+                        <span id="agent-timer" class="text-[10px]">Updated: Just now</span>
+                    </div>
+                    <div id="agent-log-container" class="space-y-1.5 max-h-64 overflow-y-auto text-gray-300">
+                        <!-- Logs dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: VISUAL SCORECARD & RADAR CHART -->
+        <section id="view-analytics" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Radar Chart Card -->
+                <div class="lg:col-span-7 glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-chart-radar text-brand-400"></i> Multi-Tool Capability Radar Overlay
+                            </h2>
+                            <select id="chart-tool-select-1" onchange="updateCharts()" class="bg-gray-900 border border-gray-700 text-xs text-gray-200 rounded-lg px-2.5 py-1 focus:outline-none">
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <p class="text-xs text-gray-400 mb-4">Comparing Rendition Quality, Setup Speed, Rigging Support, Audio Sync, and Ecosystem Flexibility.</p>
+                    </div>
+                    <div class="relative w-full h-[320px] flex items-center justify-center">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bar Chart Comparison Card -->
+                <div class="lg:col-span-5 glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-chart-simple text-accent-400"></i> Efficiency vs Rendition Score
+                        </h2>
+                        <p class="text-xs text-gray-400 mb-4">Quantitative AI ratings (Scale 1-10) for 2D image processing efficiency and final 3D short movie output quality.</p>
+                    </div>
+                    <div class="relative w-full h-[320px] flex items-center justify-center">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Agent Recommendation Matrix Card -->
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400"></i> AI Agent Best-in-Class Recommendations for Short Movie Production
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="glass-card p-4 rounded-xl border border-brand-500/30 bg-brand-500/5">
+                        <div class="text-xs text-brand-400 font-semibold mb-1">Best 100% Free / Open Source Workflow</div>
+                        <div class="text-sm font-bold text-white">Blender + Depth Anything AI + EbSynth</div>
+                        <p class="text-xs text-gray-400 mt-2">Unmatched camera control, particle effects, precise audio cue keyframing, zero subscription cost.</p>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-xl border border-accent-500/30 bg-accent-500/5">
+                        <div class="text-xs text-accent-400 font-semibold mb-1">Fastest 2D-to-3D Rigging & Motion</div>
+                        <div class="text-sm font-bold text-white">Monster Mash & Cascadeur AI</div>
+                        <p class="text-xs text-gray-400 mt-2">Ideal for quick character extrusions from single 2D photos with auto-physics auto-keyframing.</p>
+                    </div>
+
+                    <div class="glass-card p-4 rounded-xl border border-emeraldCustom-500/30 bg-emeraldCustom-500/5">
+                        <div class="text-xs text-emeraldCustom-400 font-semibold mb-1">Highest Photorealistic Output</div>
+                        <div class="text-sm font-bold text-white">Tripo3D / Rodin + Unreal Engine 5</div>
+                        <p class="text-xs text-gray-400 mt-2">High-poly mesh generation from single images, seamless PBR texture export, cinematic lighting.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: PIPELINE ARCHITECTURE WORKFLOW -->
+        <section id="view-pipeline" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl space-y-6">
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-brand-400"></i> End-to-End Animated Short Film Pipeline Matrix
+                    </h2>
+                    <p class="text-xs text-gray-400">How AI Agents orchestrate 2D artwork and original audio tracks into a completed 3D animated short film.</p>
+                </div>
+
+                <!-- Interactive Workflow Diagram -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 relative">
+                    
+                    <!-- Step 1 -->
+                    <div class="glass-card p-4 rounded-xl border border-gray-800 flex flex-col justify-between hover:border-brand-500/50 transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-gray-800 text-brand-400 rounded">STAGE 01</span>
+                                <i class="fa-solid fa-image text-brand-400"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-white mb-1">2D Image & Audio Input</h4>
+                            <p class="text-[11px] text-gray-400">Concept art, character PNG, depth maps & original WAV/MP3 track.</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-gray-800/60 text-[10px] text-gray-500">
+                            Agents: Format Validator & Audio Analyzer
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="glass-card p-4 rounded-xl border border-gray-800 flex flex-col justify-between hover:border-brand-500/50 transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-gray-800 text-accent-400 rounded">STAGE 02</span>
+                                <i class="fa-solid fa-cube text-accent-400"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-white mb-1">3D Mesh Generation</h4>
+                            <p class="text-[11px] text-gray-400">Tripo3D / CSM AI / Monster Mash converts 2D pixels into 3D geometry & texture UVs.</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-gray-800/60 text-[10px] text-gray-500">
+                            Agents: Mesh Extractor Agent
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="glass-card p-4 rounded-xl border border-gray-800 flex flex-col justify-between hover:border-brand-500/50 transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-gray-800 text-emeraldCustom-400 rounded">STAGE 03</span>
+                                <i class="fa-solid fa-person-running text-emeraldCustom-400"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-white mb-1">Rigging & Auto-Motion</h4>
+                            <p class="text-[11px] text-gray-400">Cascadeur AI or Mixamo auto-skeletal placement & auto-keyframing physical weight.</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-gray-800/60 text-[10px] text-gray-500">
+                            Agents: Rigging & Kinematics Agent
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="glass-card p-4 rounded-xl border border-gray-800 flex flex-col justify-between hover:border-brand-500/50 transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-gray-800 text-amber-400 rounded">STAGE 04</span>
+                                <i class="fa-solid fa-music text-amber-400"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-white mb-1">Music Beat & Lip Sync</h4>
+                            <p class="text-[11px] text-gray-400">Audio rhythm mapping in Blender / AnimateDiff to drive character camera cuts & dance moves.</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-gray-800/60 text-[10px] text-gray-500">
+                            Agents: Audio Mapping Agent
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="glass-card p-4 rounded-xl border border-brand-500/40 bg-brand-500/5 flex flex-col justify-between hover:border-brand-400 transition">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-mono px-2 py-0.5 bg-brand-500/20 text-brand-300 rounded">STAGE 05</span>
+                                <i class="fa-solid fa-film text-brand-400"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-white mb-1">Final Movie Render</h4>
+                            <p class="text-[11px] text-gray-400">DaVinci Resolve / Unreal Engine lighting, camera pan FX & MP4/EXR 4K export.</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-brand-500/20 text-[10px] text-brand-400">
+                            Finished Product: 3D Short Film
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Pipeline Sandbox / Configurator -->
+                <div class="bg-gray-900/90 border border-gray-800 p-5 rounded-xl space-y-4">
+                    <h3 class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-brand-400"></i> Custom Pipeline Evaluator
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Select 2D Mesh Engine:</label>
+                            <select id="pipe-mesh" class="w-full bg-gray-950 border border-gray-700 text-xs text-gray-200 rounded-lg p-2 focus:outline-none">
+                                <option value="Monster Mash">Monster Mash (Fast 2D Sketch Extrude)</option>
+                                <option value="Tripo3D">Tripo3D (High-Fidelity Generative Mesh)</option>
+                                <option value="Blender AI">Blender + Depth Anything AI</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Select Rigging Engine:</label>
+                            <select id="pipe-rig" class="w-full bg-gray-950 border border-gray-700 text-xs text-gray-200 rounded-lg p-2 focus:outline-none">
+                                <option value="Cascadeur AI">Cascadeur AI (Physics-aware Auto Rig)</option>
+                                <option value="Monster Mash IK">Monster Mash (In-browser Quick Skeleton)</option>
+                                <option value="Mixamo / Blender">Mixamo / Blender Armature</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Select Audio Mapping Tool:</label>
+                            <select id="pipe-audio" class="w-full bg-gray-950 border border-gray-700 text-xs text-gray-200 rounded-lg p-2 focus:outline-none">
+                                <option value="Blender Audio Drivers">Blender Audio Drivers (Bake Sound to F-Curves)</option>
+                                <option value="Live2D / AnimateDiff">AnimateDiff Audio Sync / ControlNet</option>
+                                <option value="DaVinci Fairlight">DaVinci Resolve Fairlight Timeline</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="calculatePipelineScore()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold rounded-xl transition shadow-md shadow-brand-600/20 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> Evaluate Pipeline Feasibility
+                    </button>
+
+                    <div id="pipeline-result" class="hidden p-3 rounded-lg bg-gray-950 border border-gray-800 text-xs text-gray-300">
+                        <!-- Calculated feasibility output -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Detailed AI Analysis Modal Card -->
+    <div id="tool-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel border border-gray-700 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl space-y-0 transform transition-all">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-gray-800 flex justify-between items-start bg-gray-900/90">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="modal-pricing-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emeraldCustom-500/20 text-emeraldCustom-400 border border-emeraldCustom-500/30">Free Tier</span>
+                        <span id="modal-ease-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-brand-500/20 text-brand-400 border border-brand-500/30">Beginner</span>
+                    </div>
+                    <h3 id="modal-tool-name" class="text-xl font-bold text-white mt-1">Monster Mash</h3>
+                    <p id="modal-tech-type" class="text-xs text-brand-400 font-mono">Sketch-Based 3D Inflatable Mesh & Rigging</p>
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white p-1 rounded-lg transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto text-xs text-gray-300">
+                
+                <!-- Quick Metric Grid -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="glass-card p-3 rounded-xl border border-gray-800 text-center">
+                        <div class="text-gray-400 text-[10px] uppercase font-semibold">Efficiency</div>
+                        <div id="modal-score-efficiency" class="text-lg font-bold text-brand-400 mt-0.5">9.5/10</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl border border-gray-800 text-center">
+                        <div class="text-gray-400 text-[10px] uppercase font-semibold">Quality score</div>
+                        <div id="modal-score-rendition" class="text-lg font-bold text-accent-400 mt-0.5">7.8/10</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl border border-gray-800 text-center">
+                        <div class="text-gray-400 text-[10px] uppercase font-semibold">Movie suitability</div>
+                        <div id="modal-score-output" class="text-lg font-bold text-emeraldCustom-400 mt-0.5">8.0/10</div>
+                    </div>
+                </div>
+
+                <!-- Deep Breakdown Sections -->
+                <div class="space-y-3">
+                    <div>
+                        <h4 class="font-bold text-white text-xs uppercase text-gray-400 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-layer-group text-brand-400"></i> Core Features & Workflow Capabilities
+                        </h4>
+                        <p id="modal-core-features" class="leading-relaxed text-gray-300 bg-gray-900/60 p-3 rounded-xl border border-gray-800">
+                            Allows users to draw 2D outlines over images, inflates them instantly into rigged 3D models, and supports real-time keyframe animation in browser.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-white text-xs uppercase text-gray-400 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-music text-amber-400"></i> Audio & Music Mapping Integration
+                        </h4>
+                        <p id="modal-audio-mapping" class="leading-relaxed text-gray-300 bg-gray-900/60 p-3 rounded-xl border border-gray-800">
+                            Supports glTF animation export which can be imported into Blender or WebGL to synchronize bone keyframes with soundtrack frequency triggers.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <h4 class="font-bold text-white text-xs uppercase text-gray-400 mb-1">Import/Export Formats</h4>
+                            <div id="modal-formats" class="bg-gray-900/60 p-2.5 rounded-xl border border-gray-800 text-gray-300 font-mono text-[11px]">
+                                PNG, JPG, WAV → OBJ, GLTF, MP4
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-xs uppercase text-gray-400 mb-1">Ecosystem Compatibility</h4>
+                            <div id="modal-compatibility" class="bg-gray-900/60 p-2.5 rounded-xl border border-gray-800 text-gray-300 font-mono text-[11px]">
+                                Blender, Unity, Web Browsers
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-white text-xs uppercase text-gray-400 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-robot text-accent-400"></i> AI Agent Verdict for Short Films
+                        </h4>
+                        <p id="modal-agent-verdict" class="leading-relaxed text-gray-300 bg-accent-500/10 p-3 rounded-xl border border-accent-500/20 text-accent-200">
+                            Excellent starting point for fast organic 3D character generation. Combine with Blender for final rendering and audio editing.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-gray-800 bg-gray-900/90 flex justify-end">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-semibold transition">
+                    Close Analysis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript App Logic -->
+    <script>
+        // Data Store: Analyzed 2D to 3D Animation Software
+        const softwareData = [
+            {
+                id: 'monster-mash',
+                name: 'Monster Mash',
+                techType: 'Inflatable Sketch 3D Engine',
+                coreFeatures: '2D silhouette inflating, instant auto-rigging, real-time control point keyframing, web UI',
+                capabilities: 'Skeletal extrusion, real-time pose manipulation, deformation physics',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 9.8,
+                renditionScore: 7.5,
+                outputQuality: 7.8,
+                formats: 'Import: PNG, JPG; Export: OBJ, GLTF/GLB, WebM',
+                compatibility: 'Blender, Unity, Web Browsers',
+                pricing: '100% Free',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Export GLTF mesh/rig to Blender or WebGL to attach keyframes to audio beats.',
+                agentVerdict: 'Best for ultra-fast creation of stylized organic characters from single 2D illustrations with zero setup time.'
+            },
+            {
+                id: 'cascadeur',
+                name: 'Cascadeur AI',
+                techType: 'AI Physics & Rigging Suite',
+                coreFeatures: 'AI Auto-Posing, Physics-aware auto-keyframing, secondary motion estimation, full timeline',
+                capabilities: 'Advanced FK/IK solvers, joint trajectory optimization, motion transfer',
+                easeOfUse: 'Intermediate',
+                efficiencyScore: 8.9,
+                renditionScore: 9.2,
+                outputQuality: 9.1,
+                formats: 'Import: FBX, OBJ, WAV; Export: FBX, DAE, MP4',
+                compatibility: 'Blender, Unreal Engine, Maya, Unity',
+                pricing: 'Free Tier',
+                audioSync: 'Native',
+                audioMappingDetails: 'Allows audio waveform import directly into timeline for precise choreography sync.',
+                agentVerdict: 'Essential companion software for auto-correcting 3D character physics and mapping realistic motion to audio beats.'
+            },
+            {
+                id: 'blender-depth-ai',
+                name: 'Blender + Depth Anything / AI',
+                techType: 'Open-Source 3D Suite + AI Addons',
+                coreFeatures: '2D-to-3D depth mesh displacement, full keyframe animation, camera control, EEVEE Next rendering',
+                capabilities: 'Full skeletal rigging, grease pencil 2D/3D hybrid, driver-based audio keyframing',
+                easeOfUse: 'Advanced',
+                efficiencyScore: 7.8,
+                renditionScore: 9.6,
+                outputQuality: 9.8,
+                formats: 'Import: PNG, JPG, WAV, MP3, SVG; Export: FBX, OBJ, GLTF, EXR, MP4',
+                compatibility: 'DaVinci Resolve, Unreal Engine, Unity, Houdini',
+                pricing: '100% Free',
+                audioSync: 'Native',
+                audioMappingDetails: 'Built-in "Bake Sound to F-Curves" allows sound frequencies to drive object transform, camera zoom, and bone rotations directly.',
+                agentVerdict: 'The most comprehensive, powerful free ecosystem for producing full cinema-quality animated 3D short films mapped to music.'
+            },
+            {
+                id: 'tripo3d',
+                name: 'Tripo3D / Rodin 3D',
+                techType: 'Generative AI Mesh Transformer',
+                coreFeatures: 'Single-image to high-poly 3D mesh, PBR texture synthesis, auto-rigging engine',
+                capabilities: 'AI mesh generation, texture projection, basic biped auto-skeleton',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 9.2,
+                renditionScore: 8.8,
+                outputQuality: 8.7,
+                formats: 'Import: PNG, JPG; Export: GLTF, OBJ, USDZ, FBX',
+                capabilitiesDetails: 'Automatic texture UV unwrapping & quad remeshing',
+                compatibility: 'Blender, Unreal Engine, Web Browsers',
+                pricing: 'Free Tier',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Requires exporting generated GLTF/FBX into Blender or Unreal for audio track timeline alignment.',
+                agentVerdict: 'Exceptional for rapid generation of detailed background assets and character models from static 2D artwork.'
+            },
+            {
+                id: 'ebsynth-live2d',
+                name: 'EbSynth + Live2D Workflow',
+                techType: 'Example-Based Motion Transfer',
+                coreFeatures: '2D keyframe paint propagation onto 3D/video motion vectors, facial rigging, layer depth',
+                capabilities: 'Style transfer onto rigged 2D/3D models, smooth frame interpolation',
+                easeOfUse: 'Intermediate',
+                efficiencyScore: 8.5,
+                renditionScore: 9.0,
+                outputQuality: 9.0,
+                formats: 'Import: PNG keyframes, MP4 video, WAV; Export: PNG sequences, MP4, MOV',
+                compatibility: 'After Effects, Blender, DaVinci Resolve',
+                pricing: '100% Free',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Sync video/mesh motion vectors with audio track in video editor before applying EbSynth texture transfer.',
+                agentVerdict: 'Ideal for creators who want to preserve hand-drawn 2D painterly artistic styles while leveraging 3D motion dynamics.'
+            },
+            {
+                id: 'csm-ai',
+                name: 'CSM AI (Common Sense Machines)',
+                techType: 'Neural Radiance / Mesh Reconstruction',
+                coreFeatures: 'Image-to-3D volumetric reconstruction, auto texture mapping, Web interface',
+                capabilities: '3D geometry extraction, point cloud conversion, auto-mesh optimization',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 8.7,
+                renditionScore: 8.3,
+                outputQuality: 8.2,
+                formats: 'Import: PNG, JPG; Export: OBJ, GLTF, USDZ',
+                compatibility: 'Blender, Unity, Unreal Engine',
+                pricing: 'Free Tier',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Generates rigged standard FBX meshes that load seamlessly into audio-reactive game engines.',
+                agentVerdict: 'Great web-based entry point for turning quick 2D concept sketches into game-ready textured 3D assets.'
+            },
+            {
+                id: 'animatediff-controlnet',
+                name: 'AnimateDiff + ControlNet Depth',
+                techType: 'Diffusion AI Temporal Motion Suite',
+                coreFeatures: 'AI video generation driven by 3D camera depth trajectories and ControlNet poses',
+                capabilities: 'Temporal consistency control, depth-guided frame generation, pose transfer',
+                easeOfUse: 'Advanced',
+                efficiencyScore: 7.2,
+                renditionScore: 9.1,
+                outputQuality: 9.3,
+                formats: 'Import: PNG, WAV, MP4; Export: MP4, GIF, WEBM',
+                compatibility: 'ComfyUI, WebUI, Premiere Pro, DaVinci Resolve',
+                pricing: '100% Free',
+                audioSync: 'Native',
+                audioMappingDetails: 'Integrated plugins like AnimateDiff-Audio allow music beat detection to drive prompt weight changes and camera motion curves.',
+                agentVerdict: 'Revolutionary open-source AI workflow for generating surreal, stylized 3D animation sequences synced to musical rhythms.'
+            },
+            {
+                id: 'mixamo-adobe',
+                name: 'Mixamo (by Adobe)',
+                techType: 'Auto-Rigging & Motion Library',
+                coreFeatures: 'Automated skeletal landmark placement, massive free motion capture animation library',
+                capabilities: 'Biped auto-rigging, finger weight painting, animation blending & speed control',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 9.5,
+                renditionScore: 8.6,
+                outputQuality: 8.8,
+                formats: 'Import: OBJ, FBX; Export: FBX, DAE',
+                compatibility: 'Blender, Unity, Unreal Engine, Maya, Cinema 4D',
+                pricing: '100% Free',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Export motion-captured FBX files into Blender/Unreal to line up dance beats and movement sequences to soundtrack bars.',
+                agentVerdict: 'Indispensable zero-cost auto-rigging engine that turns static 3D meshes into fully animated characters in under 60 seconds.'
+            }
+        ];
+
+        // State variables
+        let currentSortColumn = 'name';
+        let sortAscending = true;
+        let filteredData = [...softwareData];
+        let radarChartInstance = null;
+        let barChartInstance = null;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTable();
+            initAgentLogs();
+            initCharts();
+            populateChartDropdown();
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-brand-600', 'text-white');
+                btn.classList.add('text-gray-400');
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            activeBtn.classList.add('active', 'bg-brand-600', 'text-white');
+            activeBtn.classList.remove('text-gray-400');
+
+            if (tabId === 'analytics') {
+                setTimeout(() => updateCharts(), 100);
+            }
+        }
+
+        // Render Excel Spreadsheet Table
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="p-8 text-center text-gray-500">
+                            <i class="fa-solid fa-filter-circle-xmark text-2xl mb-2"></i>
+                            <p>No animation software matches your selected criteria.</p>
+                        </td>
+                    </tr>`;
+                document.getElementById('row-count-display').innerText = `Showing 0 software suites`;
+                return;
+            }
+
+            filteredData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-brand-500/10 cursor-pointer transition group";
+                tr.onclick = () => openModal(item.id);
+
+                const easeColor = item.easeOfUse === 'Beginner' ? 'text-emeraldCustom-400 bg-emeraldCustom-500/10 border-emeraldCustom-500/20' :
+                                  item.easeOfUse === 'Intermediate' ? 'text-brand-400 bg-brand-500/10 border-brand-500/20' : 'text-purple-400 bg-purple-500/10 border-purple-500/20';
+
+                const priceColor = item.pricing === '100% Free' ? 'text-emeraldCustom-400 font-bold' : 'text-amber-400 font-semibold';
+
+                tr.innerHTML = `
+                    <td class="p-3.5 font-medium text-white">
+                        <div class="font-bold text-gray-100 group-hover:text-brand-300 transition">${item.name}</div>
+                        <div class="text-[10px] text-gray-400 font-mono">${item.techType}</div>
+                    </td>
+                    <td class="p-3.5 text-gray-300">
+                        <div class="line-clamp-2">${item.coreFeatures}</div>
+                    </td>
+                    <td class="p-3.5 text-gray-300">
+                        <div class="line-clamp-2">${item.capabilities}</div>
+                    </td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded-md border text-[10px] font-semibold ${easeColor}">
+                            ${item.easeOfUse}
+                        </span>
+                    </td>
+                    <td class="p-3.5 font-mono text-center">
+                        <span class="text-brand-400 font-bold">${item.efficiencyScore}</span><span class="text-gray-600 text-[10px]">/10</span>
+                    </td>
+                    <td class="p-3.5 font-mono text-center">
+                        <span class="text-accent-400 font-bold">${item.renditionScore}</span><span class="text-gray-600 text-[10px]">/10</span>
+                    </td>
+                    <td class="p-3.5 text-gray-400 font-mono text-[11px]">
+                        ${item.formats}
+                    </td>
+                    <td class="p-3.5 text-gray-300 text-[11px]">
+                        ${item.compatibility}
+                    </td>
+                    <td class="p-3.5 ${priceColor}">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-tag text-[10px]"></i>
+                            <span>${item.pricing}</span>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('row-count-display').innerText = `Showing ${filteredData.length} of ${softwareData.length} software suites analyzed`;
+        }
+
+        // Sorting Spreadsheet Functionality
+        function sortTable(columnKey) {
+            if (currentSortColumn === columnKey) {
+                sortAscending = !sortAscending;
+            } else {
+                currentSortColumn = columnKey;
+                sortAscending = true;
+            }
+
+            filteredData.sort((a, b) => {
+                let valA = a[columnKey];
+                let valB = b[columnKey];
+
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return sortAscending ? -1 : 1;
+                if (valA > valB) return sortAscending ? 1 : -1;
+                return 0;
+            });
+
+            renderTable();
+        }
+
+        // Search & Filtering Engine
+        function applyFilters() {
+            const searchTerm = document.getElementById('table-search').value.toLowerCase();
+            const costFilter = document.getElementById('filter-cost').value;
+            const easeFilter = document.getElementById('filter-ease').value;
+            const audioFilter = document.getElementById('filter-audio').value;
+
+            filteredData = softwareData.filter(item => {
+                const matchesSearch = 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.techType.toLowerCase().includes(searchTerm) ||
+                    item.coreFeatures.toLowerCase().includes(searchTerm) ||
+                    item.formats.toLowerCase().includes(searchTerm) ||
+                    item.compatibility.toLowerCase().includes(searchTerm);
+
+                const matchesCost = (costFilter === 'ALL') || (item.pricing === costFilter);
+                const matchesEase = (easeFilter === 'ALL') || (item.easeOfUse === easeFilter);
+                const matchesAudio = (audioFilter === 'ALL') || (item.audioSync === audioFilter);
+
+                return matchesSearch && matchesCost && matchesEase && matchesAudio;
+            });
+
+            renderTable();
+        }
+
+        document.getElementById('table-search').addEventListener('input', applyFilters);
+        document.getElementById('filter-cost').addEventListener('change', applyFilters);
+        document.getElementById('filter-ease').addEventListener('change', applyFilters);
+        document.getElementById('filter-audio').addEventListener('change', applyFilters);
+
+        function resetFilters() {
+            document.getElementById('table-search').value = '';
+            document.getElementById('filter-cost').value = 'ALL';
+            document.getElementById('filter-ease').value = 'ALL';
+            document.getElementById('filter-audio').value = 'ALL';
+            filteredData = [...softwareData];
+            renderTable();
+        }
+
+        // Export Spreadsheet to CSV
+        function exportCSV() {
+            const headers = ['Software Name', 'Tech Type', 'Core Features', '3D Capabilities', 'Ease of Use', 'Efficiency Score', 'Visual Fidelity Score', 'Output Score', 'Supported Formats', 'Ecosystem Compatibility', 'Pricing Model'];
+            const rows = filteredData.map(item => [
+                `"${item.name}"`,
+                `"${item.techType}"`,
+                `"${item.coreFeatures}"`,
+                `"${item.capabilities}"`,
+                `"${item.easeOfUse}"`,
+                item.efficiencyScore,
+                item.renditionScore,
+                item.outputQuality,
+                `"${item.formats}"`,
+                `"${item.compatibility}"`,
+                `"${item.pricing}"`
+            ]);
+
+            const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'AI_2D_to_3D_Animation_Software_Comparison.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Simulated AI Agent Logs
+        const logTemplates = [
+            "[Mesh Extractor Agent] Parsing GitHub repository for Monster Mash web assembly updates...",
+            "[Kinematics Agent] Benchmark complete: Cascadeur AI posing speed increased by 34% on standard FBX.",
+            "[Audio Sync Agent] Evaluating Blender sound baking drivers with 120BPM WAV audio tracks.",
+            "[Rendition Benchmark Agent] Comparing depth map fidelity between Depth Anything v2 & Tripo3D generative mesh.",
+            "[Spreadsheet Agent] Recalculating normalized efficiency indices across 8 tools.",
+            "[Ecosystem Agent] Verifying FBX and GLTF texture UV map import compatibility in Unreal Engine 5."
+        ];
+
+        function initAgentLogs() {
+            const container = document.getElementById('agent-log-container');
+            container.innerHTML = '';
+            
+            // Initial log entries
+            logTemplates.forEach((log, index) => {
+                const time = new Date(Date.now() - (index * 14000)).toLocaleTimeString();
+                const logDiv = document.createElement('div');
+                logDiv.className = 'flex items-start gap-2 border-b border-gray-900/50 pb-1';
+                logDiv.innerHTML = `<span class="text-gray-600 text-[10px]">${time}</span> <span>${log}</span>`;
+                container.appendChild(logDiv);
+            });
+        }
+
+        function triggerAgentScan() {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('fa-spin');
+            
+            const container = document.getElementById('agent-log-container');
+            const time = new Date().toLocaleTimeString();
+            const randomLog = logTemplates[Math.floor(Math.random() * logTemplates.length)];
+
+            const logDiv = document.createElement('div');
+            logDiv.className = 'flex items-start gap-2 border-b border-gray-900/50 pb-1 text-brand-300 font-semibold animate-pulse';
+            logDiv.innerHTML = `<span class="text-brand-500 text-[10px]">${time}</span> <span>[LIVE SCAN EXECUTION] ${randomLog}</span>`;
+            
+            container.insertBefore(logDiv, container.firstChild);
+
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                logDiv.classList.remove('animate-pulse', 'text-brand-300', 'font-semibold');
+            }, 1200);
+        }
+
+        // Detailed Modal Analysis Card Logic
+        function openModal(id) {
+            const item = softwareData.find(s => s.id === id);
+            if (!item) return;
+
+            document.getElementById('modal-tool-name').innerText = item.name;
+            document.getElementById('modal-tech-type').innerText = item.techType;
+            document.getElementById('modal-pricing-badge').innerText = item.pricing;
+            document.getElementById('modal-ease-badge').innerText = item.easeOfUse;
+
+            document.getElementById('modal-score-efficiency').innerText = `${item.efficiencyScore}/10`;
+            document.getElementById('modal-score-rendition').innerText = `${item.renditionScore}/10`;
+            document.getElementById('modal-score-output').innerText = `${item.outputQuality}/10`;
+
+            document.getElementById('modal-core-features').innerText = item.coreFeatures;
+            document.getElementById('modal-audio-mapping').innerText = item.audioMappingDetails;
+            document.getElementById('modal-formats').innerText = item.formats;
+            document.getElementById('modal-compatibility').innerText = item.compatibility;
+            document.getElementById('modal-agent-verdict').innerText = item.agentVerdict;
+
+            document.getElementById('tool-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('tool-modal').classList.add('hidden');
+        }
+
+        // Chart.js Visualization Logic
+        function populateChartDropdown() {
+            const select = document.getElementById('chart-tool-select-1');
+            select.innerHTML = '';
+            softwareData.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.innerText = s.name;
+                select.appendChild(opt);
+            });
+            select.value = 'blender-depth-ai';
+        }
+
+        function initCharts() {
+            // Radar Chart
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            radarChartInstance = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['Generative Speed', 'Mesh Quality', 'Rigging Capabilities', 'Audio Sync', 'Ecosystem Export'],
+                    datasets: [{
+                        label: 'Blender + Depth AI',
+                        data: [7.8, 9.6, 9.8, 9.5, 9.9],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: '#3b82f6',
+                        pointBackgroundColor: '#60a5fa',
+                        pointBorderColor: '#fff',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            pointLabels: { color: '#9ca3af', font: { size: 10 } },
+                            ticks: { display: false, backdropColor: 'transparent' },
+                            suggestedMin: 0,
+                            suggestedMax: 10
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#e5e7eb', font: { size: 11 } } }
+                    }
+                }
+            });
+
+            // Bar Chart
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            barChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: softwareData.map(s => s.name),
+                    datasets: [
+                        {
+                            label: 'Process Efficiency',
+                            data: softwareData.map(s => s.efficiencyScore),
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Visual Fidelity',
+                            data: softwareData.map(s => s.renditionScore),
+                            backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            ticks: { color: '#9ca3af', font: { size: 9 } },
+                            grid: { display: false }
+                        },
+                        y: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            suggestedMin: 0,
+                            suggestedMax: 10
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#e5e7eb', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            const selectedId = document.getElementById('chart-tool-select-1').value;
+            const item = softwareData.find(s => s.id === selectedId);
+            if (!item || !radarChartInstance) return;
+
+            // Generate representative radar values for selected tool
+            const radarVals = [
+                item.efficiencyScore,
+                item.renditionScore,
+                item.capabilities.includes('skeletal') || item.capabilities.includes('rigging') ? 9.0 : 6.5,
+                item.audioSync === 'Native' ? 9.5 : 7.0,
+                item.outputQuality
+            ];
+
+            radarChartInstance.data.datasets[0].label = item.name;
+            radarChartInstance.data.datasets[0].data = radarVals;
+            radarChartInstance.update();
+        }
+
+        // Pipeline Configurator Calculation
+        function calculatePipelineScore() {
+            const mesh = document.getElementById('pipe-mesh').value;
+            const rig = document.getElementById('pipe-rig').value;
+            const audio = document.getElementById('pipe-audio').value;
+
+            const resDiv = document.getElementById('pipeline-result');
+            resDiv.classList.remove('hidden');
+
+            let score = 92;
+            let commentary = `Excellent pipeline synergy! ${mesh} handles quick 3D generation, ${rig} stabilizes character mechanics, and ${audio} handles beat syncing for the final film cut.`;
+
+            if (mesh === 'Monster Mash' && audio === 'DaVinci Fairlight') {
+                score = 85;
+                commentary = "Great lightweight pipeline. Export glTF from Monster Mash into Blender before final video render in DaVinci.";
+            }
+
+            resDiv.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-bold text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-square-check text-emeraldCustom-400"></i> Pipeline Feasibility Score: ${score}/100
+                    </span>
+                    <span class="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded">AI Evaluated</span>
+                </div>
+                <p class="text-xs text-gray-300">${commentary}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
