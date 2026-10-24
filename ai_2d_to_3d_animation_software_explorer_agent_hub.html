@@ -216,7 +216,7 @@
             <!-- Table Container with horizontal scrolling -->
             <div class="glass-panel rounded-2xl overflow-hidden border border-gray-800 shadow-2xl">
                 <div class="overflow-x-auto max-h-[620px] overflow-y-auto">
-                    <table class="w-full text-left border-collapse text-xs excel-table min-w-[1200px]" id="softwareTable">
+                    <table class="w-full text-left border-collapse text-xs excel-table min-w-[1500px]" id="softwareTable">
                         <thead class="sticky top-0 bg-gray-900/95 text-gray-300 font-semibold z-10 shadow-sm backdrop-blur-md">
                             <tr>
                                 <th onclick="sortTable('name')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none w-48">
@@ -264,6 +264,12 @@
                                 <th onclick="sortTable('compatibility')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none min-w-[150px]">
                                     <div class="flex items-center justify-between">
                                         <span>Software Ecosystem</span>
+                                        <i class="fa-solid fa-sort sort-icon text-xs"></i>
+                                    </div>
+                                </th>
+                                <th onclick="sortTable('osCompatibility')" class="p-3.5 cursor-pointer hover:bg-gray-800/80 transition select-none min-w-[240px]">
+                                    <div class="flex items-center justify-between">
+                                        <span>Operating System Compatibility &amp; Optimization</span>
                                         <i class="fa-solid fa-sort sort-icon text-xs"></i>
                                     </div>
                                 </th>
@@ -616,7 +622,7 @@
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <h4 class="font-bold text-white text-xs uppercase text-gray-400 mb-1">Import/Export Formats</h4>
                             <div id="modal-formats" class="bg-gray-900/60 p-2.5 rounded-xl border border-gray-800 text-gray-300 font-mono text-[11px]">
@@ -627,6 +633,12 @@
                             <h4 class="font-bold text-white text-xs uppercase text-gray-400 mb-1">Ecosystem Compatibility</h4>
                             <div id="modal-compatibility" class="bg-gray-900/60 p-2.5 rounded-xl border border-gray-800 text-gray-300 font-mono text-[11px]">
                                 Blender, Unity, Web Browsers
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <h4 class="font-bold text-white text-xs uppercase text-gray-400 mb-1">Operating System Compatibility &amp; Optimization</h4>
+                            <div id="modal-os-compatibility" class="bg-gray-900/60 p-2.5 rounded-xl border border-gray-800 text-gray-300 text-[11px] leading-relaxed">
+                                Supported OS and recommended operating system/hardware setup
                             </div>
                         </div>
                     </div>
@@ -667,6 +679,7 @@
                 outputQuality: 7.8,
                 formats: 'Import: PNG, JPG; Export: OBJ, GLTF/GLB, WebM',
                 compatibility: 'Blender, Unity, Web Browsers',
+                osCompatibility: 'Supported OS: Web/Browser (major desktop operating systems); Best optimization: OS-agnostic browser workflow, with a modern GPU-enabled browser recommended for smooth 3D previews.',
                 pricing: '100% Free',
                 audioSync: 'Via Plugin/Workflow',
                 audioMappingDetails: 'Export GLTF mesh/rig to Blender or WebGL to attach keyframes to audio beats.',
@@ -684,6 +697,7 @@
                 outputQuality: 9.1,
                 formats: 'Import: FBX, OBJ, WAV; Export: FBX, DAE, MP4',
                 compatibility: 'Blender, Unreal Engine, Maya, Unity',
+                osCompatibility: 'Supported OS: Windows, macOS, Linux; Best optimization: Windows 10/11 with a dedicated GPU for responsive viewport and physics workloads.',
                 pricing: 'Free Tier',
                 audioSync: 'Native',
                 audioMappingDetails: 'Allows audio waveform import directly into timeline for precise choreography sync.',
@@ -701,6 +715,7 @@
                 outputQuality: 9.8,
                 formats: 'Import: PNG, JPG, WAV, MP3, SVG; Export: FBX, OBJ, GLTF, EXR, MP4',
                 compatibility: 'DaVinci Resolve, Unreal Engine, Unity, Houdini',
+                osCompatibility: 'Supported OS: Windows, macOS, Linux; Best optimization: Windows or Linux with a recent NVIDIA CUDA GPU for local AI inference and GPU rendering; macOS Apple Silicon works well for native Blender tasks.',
                 pricing: '100% Free',
                 audioSync: 'Native',
                 audioMappingDetails: 'Built-in "Bake Sound to F-Curves" allows sound frequencies to drive object transform, camera zoom, and bone rotations directly.',
@@ -717,8 +732,8 @@
                 renditionScore: 8.8,
                 outputQuality: 8.7,
                 formats: 'Import: PNG, JPG; Export: GLTF, OBJ, USDZ, FBX',
-                capabilitiesDetails: 'Automatic texture UV unwrapping & quad remeshing',
                 compatibility: 'Blender, Unreal Engine, Web Browsers',
+                osCompatibility: 'Supported OS: Web/Browser; Best optimization: OS-agnostic web workflow with a modern desktop browser and reliable broadband connection.',
                 pricing: 'Free Tier',
                 audioSync: 'Via Plugin/Workflow',
                 audioMappingDetails: 'Requires exporting generated GLTF/FBX into Blender or Unreal for audio track timeline alignment.',
@@ -736,6 +751,7 @@
                 outputQuality: 9.0,
                 formats: 'Import: PNG keyframes, MP4 video, WAV; Export: PNG sequences, MP4, MOV',
                 compatibility: 'After Effects, Blender, DaVinci Resolve',
+                osCompatibility: 'Supported OS: Windows, macOS; Best optimization: Windows or macOS with a modern multi-core CPU and sufficient RAM for processing image sequences.',
                 pricing: '100% Free',
                 audioSync: 'Via Plugin/Workflow',
                 audioMappingDetails: 'Sync video/mesh motion vectors with audio track in video editor before applying EbSynth texture transfer.',
@@ -753,6 +769,7 @@
                 outputQuality: 8.2,
                 formats: 'Import: PNG, JPG; Export: OBJ, GLTF, USDZ',
                 compatibility: 'Blender, Unity, Unreal Engine',
+                osCompatibility: 'Supported OS: Web/Browser; Best optimization: OS-agnostic browser access; use a modern desktop browser and GPU for smooth preview and downstream editing.',
                 pricing: 'Free Tier',
                 audioSync: 'Via Plugin/Workflow',
                 audioMappingDetails: 'Generates rigged standard FBX meshes that load seamlessly into audio-reactive game engines.',
@@ -770,6 +787,7 @@
                 outputQuality: 9.3,
                 formats: 'Import: PNG, WAV, MP4; Export: MP4, GIF, WEBM',
                 compatibility: 'ComfyUI, WebUI, Premiere Pro, DaVinci Resolve',
+                osCompatibility: 'Supported OS: Windows, macOS, Linux (local workflows); Best optimization: Windows or Linux with an NVIDIA CUDA GPU and ample VRAM for local diffusion inference.',
                 pricing: '100% Free',
                 audioSync: 'Native',
                 audioMappingDetails: 'Integrated plugins like AnimateDiff-Audio allow music beat detection to drive prompt weight changes and camera motion curves.',
@@ -787,10 +805,191 @@
                 outputQuality: 8.8,
                 formats: 'Import: OBJ, FBX; Export: FBX, DAE',
                 compatibility: 'Blender, Unity, Unreal Engine, Maya, Cinema 4D',
+                osCompatibility: 'Supported OS: Web/Browser; Best optimization: OS-agnostic browser workflow; a current desktop browser and stable internet connection are recommended.',
                 pricing: '100% Free',
                 audioSync: 'Via Plugin/Workflow',
                 audioMappingDetails: 'Export motion-captured FBX files into Blender/Unreal to line up dance beats and movement sequences to soundtrack bars.',
                 agentVerdict: 'Indispensable zero-cost auto-rigging engine that turns static 3D meshes into fully animated characters in under 60 seconds.'
+            },
+            {
+                id: 'kaiber-superstudio',
+                name: 'Kaiber Superstudio',
+                techType: 'Generative AI Video & Animation Suite',
+                coreFeatures: 'Image-to-video generation, visual style workflows, music-reactive video tools and timeline editing',
+                capabilities: 'Generates stylized motion from image and text prompts for use as animation references or final video sequences',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 8.5,
+                renditionScore: 8.4,
+                outputQuality: 8.2,
+                formats: 'Import: Images, video, audio; Export: MP4 (resolution and availability plan dependent)',
+                compatibility: 'Web Browsers, Blender, DaVinci Resolve, Adobe Premiere Pro',
+                osCompatibility: 'Supported OS: Web/Browser; Best optimization: OS-agnostic in a current desktop browser; use a discrete GPU for local editing and compositing of exports.',
+                pricing: 'Free Tier',
+                audioSync: 'Native',
+                audioMappingDetails: 'Music-reactive generation and timeline workflows can use an audio track to influence or time visual output.',
+                agentVerdict: 'An accessible generative video option for stylized music visuals and animation concepts; free access and export limits can change.'
+            },
+            {
+                id: 'pika',
+                name: 'Pika',
+                techType: 'Generative AI Video Platform',
+                coreFeatures: 'Text-to-video, image-to-video, video modification and prompt-driven creative effects',
+                capabilities: 'Creates short animated clips from prompts and still images for concepting or compositing into larger projects',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 8.7,
+                renditionScore: 8.3,
+                outputQuality: 8.1,
+                formats: 'Import: Text prompts, PNG, JPG, video; Export: MP4 (plan and feature dependent)',
+                compatibility: 'Web Browsers, Blender, DaVinci Resolve, Adobe Premiere Pro',
+                osCompatibility: 'Supported OS: Web/Browser; Best optimization: OS-agnostic browser-based generation; a modern desktop browser and stable internet connection are recommended.',
+                pricing: 'Free Tier',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Generate video clips, then align them with music or dialogue in an external editor such as DaVinci Resolve.',
+                agentVerdict: 'Useful for quickly exploring animated visual directions from an illustration; free credits, clip duration and export options may be limited.'
+            },
+            {
+                id: 'runway',
+                name: 'Runway',
+                techType: 'Generative AI Video & Creative Suite',
+                coreFeatures: 'Text- and image-to-video generation, video transformation, masking and web-based editing tools',
+                capabilities: 'Produces and edits short video sequences that can serve as animation elements, references or composited shots',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 8.6,
+                renditionScore: 8.7,
+                outputQuality: 8.5,
+                formats: 'Import: Images, video, audio; Export: MP4 (model, plan and resolution dependent)',
+                compatibility: 'Web Browsers, Blender, DaVinci Resolve, Adobe Premiere Pro',
+                osCompatibility: 'Supported OS: Web/Browser; Best optimization: OS-agnostic browser-based generation; use a modern browser, with a GPU-equipped workstation for local post-production.',
+                pricing: 'Free Tier',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Use generated shots in an editor timeline to synchronize cuts and motion with soundtrack or dialogue.',
+                agentVerdict: 'A versatile generative video toolkit for previs and short-form shots; free credits and current model access are subject to plan limits.'
+            },
+            {
+                id: 'kling-ai',
+                name: 'Kling AI',
+                techType: 'Generative AI Video Platform',
+                coreFeatures: 'Text-to-video and image-to-video generation, motion prompting and video extension tools',
+                capabilities: 'Generates short clips from concepts and still artwork for downstream editing or compositing',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 8.4,
+                renditionScore: 8.7,
+                outputQuality: 8.4,
+                formats: 'Import: Text prompts, images, video; Export: MP4 (availability and limits plan dependent)',
+                compatibility: 'Web Browsers, Blender, DaVinci Resolve, Adobe Premiere Pro',
+                osCompatibility: 'Supported OS: Web/Browser; Best optimization: OS-agnostic browser workflow with a current desktop browser and reliable broadband.',
+                pricing: 'Free Tier',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Export generated shots and synchronize their timing to audio in a video editor or animation timeline.',
+                agentVerdict: 'A prompt-driven video option for animatics and short visual sequences; free access, region availability and export limits may vary.'
+            },
+            {
+                id: 'luma-dream-machine',
+                name: 'Luma Dream Machine',
+                techType: 'Generative AI Video Platform',
+                coreFeatures: 'Image-to-video and text-to-video generation, shot iteration and motion-directed clip creation',
+                capabilities: 'Animates still artwork into short clips that can be integrated with 3D renders and edited sequences',
+                easeOfUse: 'Beginner',
+                efficiencyScore: 8.4,
+                renditionScore: 8.6,
+                outputQuality: 8.4,
+                formats: 'Import: Text prompts, PNG, JPG; Export: MP4 (plan and feature dependent)',
+                compatibility: 'Web Browsers, Blender, Unreal Engine, DaVinci Resolve',
+                osCompatibility: 'Supported OS: Web/Browser; Best optimization: OS-agnostic browser-based generation; use a modern browser and GPU-equipped workstation for editing exported video.',
+                pricing: 'Free Tier',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Dream Machine generates video rather than an audio-timed rig; align its clips with music or dialogue in an editor.',
+                agentVerdict: 'A distinct video-generation workflow from Luma Genie, suitable for adding motion to concept art; check current free-generation limits.'
+            },
+            {
+                id: 'rokoko-video',
+                name: 'Rokoko Video',
+                techType: 'Markerless AI Motion Capture',
+                coreFeatures: 'Video-based body tracking, markerless motion capture and motion export for character workflows',
+                capabilities: 'Extracts human movement from video and transfers the resulting animation to compatible 3D character rigs',
+                easeOfUse: 'Intermediate',
+                efficiencyScore: 8.2,
+                renditionScore: 7.9,
+                outputQuality: 7.8,
+                formats: 'Import: Video; Export: FBX, BVH (workflow and plan dependent)',
+                compatibility: 'Rokoko Studio, Blender, Unreal Engine, Unity, Maya',
+                osCompatibility: 'Supported OS: Web/Browser for capture processing; Windows, macOS and Linux for compatible downstream tools; Best optimization: Windows 10/11 with a modern webcam and dedicated GPU for local character workflows.',
+                pricing: 'Free Tier',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Capture movement from a video reference, then align the motion with music or dialogue in Rokoko Studio or a DCC timeline.',
+                agentVerdict: 'A no-suit capture approach for blocking character animation; recording duration, export access and features may depend on the current plan.'
+            },
+            {
+                id: 'davinci-resolve-fusion',
+                name: 'DaVinci Resolve (Fusion)',
+                techType: 'Free Video Editing, Compositing & VFX Suite',
+                coreFeatures: 'Node-based compositing, 2D/3D titles, keying, tracking, editing timeline and audio post-production',
+                capabilities: 'Composites 3D renders with 2D artwork and generated video; supports scene-based 3D elements and shot finishing',
+                easeOfUse: 'Intermediate',
+                efficiencyScore: 8.2,
+                renditionScore: 9.0,
+                outputQuality: 9.0,
+                formats: 'Import: PNG, EXR, image sequences, video, WAV; Export: MP4, MOV, image sequences',
+                compatibility: 'Windows, macOS, Linux, Blender, Unreal Engine',
+                osCompatibility: 'Supported OS: Windows, macOS, Linux; Best optimization: Windows with a recent NVIDIA GPU for broad GPU acceleration, or macOS Apple Silicon for an optimized native Resolve workflow.',
+                pricing: 'Free Tier',
+                audioSync: 'Native',
+                audioMappingDetails: 'The Fairlight audio page and edit timeline support placing, trimming and synchronizing audio with video and animation shots.',
+                agentVerdict: 'A strong free-to-start finishing and compositing stage for combining 2D-to-3D renders, generated clips and synchronized sound.'
+            },
+            {
+                id: 'natron',
+                name: 'Natron',
+                techType: 'Open-Source Node-Based Compositing',
+                coreFeatures: 'Node-based compositing, keying, tracking, rotoscoping and OpenFX plugin support',
+                capabilities: 'Combines rendered 3D passes, 2D animation and video layers for shot compositing',
+                easeOfUse: 'Intermediate',
+                efficiencyScore: 7.5,
+                renditionScore: 8.5,
+                outputQuality: 8.3,
+                formats: 'Import: PNG, EXR, TIFF, video (codec dependent); Export: image sequences and video (codec dependent)',
+                compatibility: 'Windows, macOS, Linux, Blender, other OpenFX-compatible tools',
+                osCompatibility: 'Supported OS: Windows, macOS, Linux; Best optimization: A modern multi-core desktop CPU with ample RAM; GPU needs depend on the OpenFX plugins used.',
+                pricing: '100% Free',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Natron focuses on compositing; synchronize finished shots and audio in a video editor or an external timeline.',
+                agentVerdict: 'A free node compositor for integrating 2D artwork, AI-generated footage and 3D render passes into finished shots.'
+            },
+            {
+                id: 'synfig-studio',
+                name: 'Synfig Studio',
+                techType: 'Open-Source 2D Vector Animation',
+                coreFeatures: 'Vector tweening, bone systems, spline-based animation and timeline keyframes',
+                capabilities: 'Creates rigged 2D animation and layered sequences that can be composited with 3D-rendered content',
+                easeOfUse: 'Intermediate',
+                efficiencyScore: 7.4,
+                renditionScore: 8.0,
+                outputQuality: 8.0,
+                formats: 'Import: SVG, PNG, images, audio reference; Export: PNG sequences, GIF, video (codec dependent)',
+                compatibility: 'Windows, macOS, Linux, Blender, video editors',
+                osCompatibility: 'Supported OS: Windows, macOS, Linux; Best optimization: OS-agnostic desktop workflow; a multi-core CPU and drawing tablet improve authoring comfort but are not required.',
+                pricing: '100% Free',
+                audioSync: 'Via Plugin/Workflow',
+                audioMappingDetails: 'Use audio as a timing reference where supported or export the animation and synchronize it in a video editor.',
+                agentVerdict: 'A free vector and bone-animation tool for adding 2D motion alongside generated 3D assets and rendered scenes.'
+            },
+            {
+                id: 'tahoma2d',
+                name: 'Tahoma2D',
+                techType: 'Open-Source 2D Animation & Compositing',
+                coreFeatures: 'Drawing and cel animation, timeline production, effects, compositing and scene camera tools',
+                capabilities: 'Produces hand-drawn and cutout 2D sequences for compositing with 3D renders or generative video',
+                easeOfUse: 'Intermediate',
+                efficiencyScore: 7.3,
+                renditionScore: 8.1,
+                outputQuality: 8.1,
+                formats: 'Import: PNG, JPEG, SVG, image sequences; Export: PNG sequences, GIF, video (codec dependent)',
+                compatibility: 'Windows, macOS, Linux, Blender, DaVinci Resolve',
+                osCompatibility: 'Supported OS: Windows, macOS, Linux; Best optimization: OS-agnostic desktop workflow with a modern multi-core CPU and sufficient RAM for animation and compositing.',
+                pricing: '100% Free',
+                audioSync: 'Native',
+                audioMappingDetails: 'Audio can be loaded as a timeline reference for timing drawn animation to dialogue, music and sound effects.',
+                agentVerdict: 'A free production-oriented 2D animation and compositing application that pairs well with externally generated 3D scenes.'
             }
         ];
 
@@ -835,7 +1034,7 @@
             if (filteredData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" class="p-8 text-center text-gray-500">
+                        <td colspan="10" class="p-8 text-center text-gray-500">
                             <i class="fa-solid fa-filter-circle-xmark text-2xl mb-2"></i>
                             <p>No animation software matches your selected criteria.</p>
                         </td>
@@ -881,6 +1080,9 @@
                     </td>
                     <td class="p-3.5 text-gray-300 text-[11px]">
                         ${item.compatibility}
+                    </td>
+                    <td class="p-3.5 text-gray-300 text-[11px] min-w-[240px]">
+                        <div class="line-clamp-3">${item.osCompatibility}</div>
                     </td>
                     <td class="p-3.5 ${priceColor}">
                         <div class="flex items-center gap-1.5">
@@ -934,7 +1136,8 @@
                     item.techType.toLowerCase().includes(searchTerm) ||
                     item.coreFeatures.toLowerCase().includes(searchTerm) ||
                     item.formats.toLowerCase().includes(searchTerm) ||
-                    item.compatibility.toLowerCase().includes(searchTerm);
+                    item.compatibility.toLowerCase().includes(searchTerm) ||
+                    item.osCompatibility.toLowerCase().includes(searchTerm);
 
                 const matchesCost = (costFilter === 'ALL') || (item.pricing === costFilter);
                 const matchesEase = (easeFilter === 'ALL') || (item.easeOfUse === easeFilter);
@@ -962,7 +1165,7 @@
 
         // Export Spreadsheet to CSV
         function exportCSV() {
-            const headers = ['Software Name', 'Tech Type', 'Core Features', '3D Capabilities', 'Ease of Use', 'Efficiency Score', 'Visual Fidelity Score', 'Output Score', 'Supported Formats', 'Ecosystem Compatibility', 'Pricing Model'];
+            const headers = ['Software Name', 'Tech Type', 'Core Features', '3D Capabilities', 'Ease of Use', 'Efficiency Score', 'Visual Fidelity Score', 'Output Score', 'Supported Formats', 'Ecosystem Compatibility', 'Operating System Compatibility & Optimization', 'Pricing Model'];
             const rows = filteredData.map(item => [
                 `"${item.name}"`,
                 `"${item.techType}"`,
@@ -974,6 +1177,7 @@
                 item.outputQuality,
                 `"${item.formats}"`,
                 `"${item.compatibility}"`,
+                `"${item.osCompatibility}"`,
                 `"${item.pricing}"`
             ]);
 
@@ -1050,6 +1254,7 @@
             document.getElementById('modal-audio-mapping').innerText = item.audioMappingDetails;
             document.getElementById('modal-formats').innerText = item.formats;
             document.getElementById('modal-compatibility').innerText = item.compatibility;
+            document.getElementById('modal-os-compatibility').innerText = item.osCompatibility;
             document.getElementById('modal-agent-verdict').innerText = item.agentVerdict;
 
             document.getElementById('tool-modal').classList.remove('hidden');
